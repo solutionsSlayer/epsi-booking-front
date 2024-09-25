@@ -47,11 +47,12 @@ const ComponentForm = () => {
       const data = await response.json();
       console.log('Données reçues:', data);
 
-      if (data.jwt) {
-        toast.success('Connexion réussie!');
+      if (data.jwt && data.user) {
+        const username = data.user.username || data.user.email;
+        toast.success(`Bonjour ${username} !`);
         // Stockez le token JWT ici si nécessaire
       } else {
-        toast.error('Erreur de connexion: Pas de token reçu');
+        toast.error('Erreur de connexion: Informations utilisateur manquantes');
       }
     } catch (err) {
       console.error('Erreur lors de la connexion:', err);
