@@ -1,19 +1,18 @@
 'use client'
  
 import React, { useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ComponentForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     try {
+      console.log('Tentative de connexion...');
       const response = await fetch('http://localhost:1337/api/auth/local', {
         method: 'POST',
         headers: {
@@ -25,43 +24,66 @@ const ComponentForm = () => {
         }),
       });
 
-      const data = await response.json();
+      console.log('Réponse reçue:', response.status, response.statusText);
 
-      if (response.ok) {
-        setSuccess('Connexion réussie!');
-        // Gère la connexion réussie (par exemple, stocker le token, rediriger l'utilisateur, etc.)
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erreur de réponse:', errorData);
+        
+        if (errorData.error && errorData.error.message) {
+          if (errorData.error.message.includes('identifier')) {
+            toast.error('Login incorrect');
+          } else if (errorData.error.message.includes('password')) {
+            toast.error('Mot de passe incorrect');
+          } else {
+            toast.error('Erreur de connexion');
+          }
+        } else {
+          toast.error('Erreur de connexion');
+        }
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Données reçues:', data);
+
+      if (data.jwt) {
+        toast.success('Connexion réussie!');
+        // Stockez le token JWT ici si nécessaire
       } else {
-        setError(data.message[0].messages[0].message);
+        toast.error('Erreur de connexion: Pas de token reçu');
       }
     } catch (err) {
-      setError('Une erreur est survenue. Veuillez réessayer.');
+      console.error('Erreur lors de la connexion:', err);
+      toast.error('Une erreur est survenue lors de la connexion');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className='flex flex-col gap-4 items-center justify-center h-screen'>
-      <div className='flex flex-col gap-2'>
-        <label>Email:</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <div className='flex flex-col gap-2'>
-        <label>Mot de passe:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
-      <button type="submit">Se connecter</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-    </form>
+    <>
+      <form onSubmit={handleSubmit} className='flex flex-col gap-4 items-center justify-center h-screen'>
+        <div className='flex flex-col gap-2'>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className='flex flex-col gap-2'>
+          <label>Mot de passe:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Se connecter</button>
+      </form>
+      <ToastContainer />
+    </>
   );
 };
 
