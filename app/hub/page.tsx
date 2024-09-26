@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:1337';
 const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || 'http://127.0.0.1:1337';
@@ -8,7 +10,7 @@ async function getCampuses() {
     console.log("Fetching campuses...");
     const res = await fetch(`${API_BASE_URL}/api/all-buildings`, {
       headers: {
-        'Authorization': 'Bearer b12b60f2bf72ab8a229e67fafdee402082505bd67e65d402ff359e3c1b5b751e6bc60c9e2206c106dfd3aa6b2b481b3086519648584ad500d618c1b1bd3219862966d086efbedef853859e7f561122d21c77f3e5ad7f3a3fe1f322b1ebdd84e0d89af8dfe0613994cfbddd30f4e14bd6d8387cd852c5fee306ab2d05fc170b7c'
+        'Authorization': 'Bearer c410e18811d6b3920585b0d8a0f2b06303e50a20dd32be15cb6dca4fb1cdeb820b72dbaaacbc140c94a57946612509a974bc79c37293dd81602cea05503b56f6d2fd094c6f566f3eecb905bdc9eb3c440bb8f2eed42682f3a93852046277647cdd2c5a971a24eb1fc8d094e73d150989a3740c2968c95eaf456c024bfc1e5fdc'
       },
       cache: 'no-store'
     });
@@ -38,6 +40,16 @@ interface Campus {
 }
 
 export default async function Page() {
+  const cookieStore = cookies();
+  console.log("cookieStore", cookieStore);
+  const isAuthenticated = cookieStore.get('isAuthenticated');
+
+  console.log("isAuthenticated", isAuthenticated);
+
+  if (!isAuthenticated || isAuthenticated.value !== 'true') {
+    redirect('/login');
+  }
+
   const campuses = await getCampuses();
 
   return (

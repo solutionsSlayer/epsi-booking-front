@@ -14,8 +14,7 @@ const LoginForm = () => {
     e.preventDefault();
 
     try {
-      console.log('Tentative de connexion...');
-      const response = await fetch('http://localhost:1337/api/auth/local', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,45 +25,24 @@ const LoginForm = () => {
         }),
       });
 
-      console.log('Réponse reçue:', response.status, response.statusText);
+      const data = await response.json();
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Erreur de réponse:', errorData);
-        
-        if (errorData.error && errorData.error.message) {
-          if (errorData.error.message.includes('identifier')) {
-            toast.error('Login incorrect');
-          } else if (errorData.error.message.includes('password')) {
-            toast.error('Mot de passe incorrect');
-          } else {
-            toast.error('Erreur de connexion');
-          }
-        } else {
-          toast.error('Erreur de connexion');
-        }
+        toast.error(data.error || 'An error occurred during login');
         return;
       }
 
-      const data = await response.json();
-      console.log('Données reçues:', data);
-
-      if (data.jwt && data.user) {
+      if (data.success) {
         const username = data.user.username || data.user.email;
         toast.success(`Bonjour ${username} !`);
-        localStorage.setItem('jwtToken', data.jwt);
-        const timer = setTimeout(() => {
-          router.push('/hub');
-        });
-    
-        return () => clearTimeout(timer);
-
+        localStorage.setItem('isAuthenticated', 'true');
+        router.push('/hub');
       } else {
-        toast.error('Erreur de connexion: Informations utilisateur manquantes');
+        toast.error('Login failed');
       }
     } catch (err) {
-      console.error('Erreur lors de la connexion:', err);
-      toast.error('Une erreur est survenue lors de la connexion');
+      console.error('Error during login:', err);
+      toast.error('An error occurred during login');
     }
   };
 

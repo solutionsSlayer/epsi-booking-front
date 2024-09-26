@@ -9,44 +9,37 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const useAuth = () => {
-  let token = null;
-
   if (typeof window !== 'undefined') {
-    // Ici, localStorage est accessible car nous sommes côté client
-    token = localStorage.getItem('jwtToken');
+    return localStorage.getItem('isAuthenticated') === 'true';
   }
-  
-  return !!token; // Si le token est présent, l'utilisateur est authentifié
+  return false;
 };
 
-
-
-
-
 const Nav = () => {
-
   const [isAuth, setIsAuth] = useState(false);
-
-  const authenticated = useAuth();
-  const pathname = usePathname();
   const [showLoginButton, setShowLoginButton] = useState(false);
 
+  const pathname = usePathname();
   const isAuthenticated = useAuth();
 
   useEffect(() => {
     setShowLoginButton(!isAuthenticated && pathname !== '/login');
+    setIsAuth(isAuthenticated);
   }, [pathname, isAuthenticated]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('jwtToken');
-    setIsAuth(false);
-    toast.success(`À bientot !`);
-    // Rediriger l'utilisateur vers la page de connexion ou d'accueil
+    localStorage.removeItem('isAuthenticated');
+    
+    const response = await fetch('/api/logout', { method: 'POST' });
+    if (response.ok) {
+      setIsAuth(false);
+      toast.success(`À bientôt !`);
+      window.location.href = '/';
+    } else {
+      toast.error('Erreur lors de la déconnexion');
+    }
   };
-
-  useEffect(() => {
-    setIsAuth(authenticated);
-  }, [authenticated]);
 
   return (
     <nav className="bg-nav shadow-md">
@@ -56,8 +49,8 @@ const Nav = () => {
                 <Image 
                     src="/logoEpsiFondBlanc.svg" 
                     alt="EPSI Logo" 
-                    width={135} 
-                    height={40} 
+                    width={150} 
+                    height={150} 
                 />
             </Link>
         </div>
