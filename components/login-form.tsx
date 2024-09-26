@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
 
-const ComponentForm = () => {
+const LoginForm = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,7 +55,7 @@ const ComponentForm = () => {
         localStorage.setItem('jwtToken', data.jwt);
         const timer = setTimeout(() => {
           router.push('/hub');
-        }, 2500);
+        });
     
         return () => clearTimeout(timer);
 
@@ -98,4 +98,4 @@ const ComponentForm = () => {
   );
 };
 
-export default ComponentForm;
+export default LoginForm;
