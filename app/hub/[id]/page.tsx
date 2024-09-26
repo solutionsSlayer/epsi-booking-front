@@ -182,14 +182,15 @@ export default function CampusPage({ params }: { params: { id: string } }) {
       setSelectedSlot(start);
       setSelectedTime(moment(start).format('MMMM D, YYYY HH:mm'));
 
-      // Filter availabilities for the selected date and hour
       const selectedAvailabilities = availabilities.filter(a => 
         moment(a.startTime).format('YYYY-MM-DD') === formattedDate &&
         moment(a.startTime).hour() === hour &&
         !a.isBooked
       );
 
-      // Set the selected rooms based on the filtered availabilities
+      // Log the availabilities for the selected hour
+      console.log('Availabilities for selected hour:', selectedAvailabilities);
+
       setSelectedRooms(selectedAvailabilities.map(a => ({
         id: a.room.id,
         name: a.room.name
@@ -235,18 +236,26 @@ export default function CampusPage({ params }: { params: { id: string } }) {
         const createdBooking = await response.json();
         console.log('Booking created successfully:', createdBooking);
 
-        // Update the bookings state with the new booking
+        // Update bookings state
         setBookings(prev => [...prev, {
           id: createdBooking.data.id,
           title: bookingForm.name,
           start: new Date(startTime),
           end: new Date(endTime),
           color: eventColors[Math.floor(Math.random() * eventColors.length)],
+          room: selectedRooms.find(r => r.id.toString() === bookingForm.room)?.name,
         }]);
 
         setShowModal(false);
         setBookingForm({ name: '', room: '', app_user: '' });
-        fetchAvailabilities(); // Refresh availabilities
+        
+        // Fetch updated availabilities and bookings
+        await fetchAvailabilities();
+        await fetchBookings();
+        
+        // Clear selected rooms and time
+        setSelectedRooms([]);
+        setSelectedTime(null);
       } catch (error) {
         console.error('Error creating booking:', error);
         alert(`Failed to create booking: ${error.message}`);
@@ -371,32 +380,35 @@ export default function CampusPage({ params }: { params: { id: string } }) {
             </div>
           )}
         </div>
-        <div className="md:col-span-2 bg-white rounded-lg shadow-lg p-6">
+        <div className="md:col-span-2 bg-white rounded-lg shadow-lg p-6 overflow-hidden">
           <h2 className="text-2xl font-bold mb-4 text-blue-600">Campus Booking</h2>
           <p className="mb-4 text-gray-700">Connected User: {connectedUser.name}</p>
-          <DnDCalendar
-            slotPropGetter={slotPropGetter}
-            localizer={localizer}
-            events={bookings}
-            startAccessor={(event: any) => event.start}
-            endAccessor={(event: any) => event.end}
-            onSelectSlot={handleSelectSlot}
-            onSelectEvent={handleSelectEvent}
-            onEventDrop={onEventDrop}
-            onEventResize={onEventResize}
-            resizable
-            selectable
-            step={60}
-            timeslots={1}
-            view={view}
-            onView={(newView: View) => setView(newView as "week")}
-            views={[Views.MONTH, Views.WEEK, Views.DAY]}
-            min={moment().hours(8).minutes(0).toDate()}
-            max={moment().hours(20).minutes(0).toDate()}
-            eventPropGetter={eventPropGetter}
-            slotPropGetter={slotPropGetter}
-            style={{ height: 500 }}
-          />
+          <div className="calendar-container overflow-x-auto">
+            <div style={{ minWidth: '800px' }}>
+              <DnDCalendar
+                localizer={localizer}
+                events={bookings}
+                startAccessor={(event: any) => event.start}
+                endAccessor={(event: any) => event.end}
+                onSelectSlot={handleSelectSlot}
+                onSelectEvent={handleSelectEvent}
+                onEventDrop={onEventDrop}
+                onEventResize={onEventResize}
+                resizable
+                selectable
+                step={60}
+                timeslots={1}
+                view={view}
+                onView={(newView: View) => setView(newView as "week")}
+                views={[Views.MONTH, Views.WEEK, Views.DAY]}
+                min={moment().hours(8).minutes(0).toDate()}
+                max={moment().hours(20).minutes(0).toDate()}
+                eventPropGetter={eventPropGetter}
+                slotPropGetter={slotPropGetter}
+                style={{ height: 500 }}
+              />
+            </div>
+          </div>
         </div>
       </div>
       {showModal && (
@@ -446,6 +458,14 @@ export default function CampusPage({ params }: { params: { id: string } }) {
         </div>
       )}
       <style jsx global>{`
+        .calendar-container {
+          width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .rbc-calendar {
+          min-width: 800px;
+        }
         .custom-time-slot {
           color: #333;
           font-weight: bold;
