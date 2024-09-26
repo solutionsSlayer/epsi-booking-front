@@ -8,7 +8,7 @@ async function getCampuses() {
     console.log("Fetching campuses...");
     const res = await fetch(`${API_BASE_URL}/api/all-buildings`, {
       headers: {
-        'Authorization': 'Bearer 531bc9e5ca41fc9ea6a2987e0dc5093d395ebe159f443eb01d7dc3f77fd536607a11422b9642d27ee096b9d13ac96d9e19688a7649552a9d5743459eaebd019ac6775ad830973b72d923e98556766f72181184733b7b4612f83d078db8d54d91a3aea3777ae2425a13a8960996859bea7304af0911ce99219b68d4084cc32df9'
+        'Authorization': 'Bearer b12b60f2bf72ab8a229e67fafdee402082505bd67e65d402ff359e3c1b5b751e6bc60c9e2206c106dfd3aa6b2b481b3086519648584ad500d618c1b1bd3219862966d086efbedef853859e7f561122d21c77f3e5ad7f3a3fe1f322b1ebdd84e0d89af8dfe0613994cfbddd30f4e14bd6d8387cd852c5fee306ab2d05fc170b7c'
       },
       cache: 'no-store'
     });

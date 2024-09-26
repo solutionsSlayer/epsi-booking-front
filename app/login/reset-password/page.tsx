@@ -1,12 +1,12 @@
 import React from 'react';
-import LoginForm from '@/components/login-form';
+import ResetPwdForm from '@/components/reset-pwd-form';
 
 
 
 const page = () => {
   return (
     <div className='flex items-center justify-center'>
-      <LoginForm />
+      <ResetPwdForm />
     </div>
   );
 }
