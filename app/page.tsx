@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function Home() {
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
+    <div className="w-screen h-screen overflow-hidden absolute top-0 left-0 z-[-1] ">
       <video autoPlay muted loop className="absolute top-0 left-0 w-full h-full object-cover z-0">
         <source src="/bg.mp4" type="video/mp4" />
       </video>
