@@ -1,7 +1,6 @@
 import Image from 'next/image';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:1337';
-const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || 'http://127.0.0.1:1337';
 
 async function getCampuses() {
   try {
